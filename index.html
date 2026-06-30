@@ -39,7 +39,7 @@
                 </nav>
                 <div class="header-actions">
                     <button class="btn btn-secondary">Masuk</button>
-                    <button class="btn btn-primary">Mulai Sekarang</button>
+                    <a href="#pricing" class="btn btn-primary">Mulai Sekarang</a>
                 </div>
             </div>
         </header>
@@ -53,8 +53,8 @@
                         <h1 class="hero-heading">Bantu UMKM Jogja Naik Kelas dengan Strategi Digital yang Tepat</h1>
                         <p class="hero-paragraph">NusaData Digital Lab hadir untuk membantu bisnis lokal Yogyakarta mengoptimalkan kehadiran digital, meningkatkan traffic, dan melejitkan penjualan melalui strategi SEO dan Digital Marketing yang terukur.</p>
                         <div class="hero-actions">
-                            <button class="btn btn-primary btn-lg">Mulai Sekarang</button>
-                            <button class="btn btn-secondary btn-lg">Konsultasi Gratis</button>
+                            <a href="#pricing" class="btn btn-primary btn-lg">Mulai Sekarang</a>
+                            <button class="btn btn-secondary btn-lg btn-trigger-audit" data-mode="consultation">Konsultasi Gratis</button>
                         </div>
                     </div>
                     <div class="hero-image">
@@ -279,7 +279,7 @@
                                 <li>✓ Monthly Report</li>
                                 <li>✓ Email Support</li>
                             </ul>
-                            <button class="btn btn-secondary w-full">Pilih Paket</button>
+                            <button class="btn btn-secondary w-full btn-trigger-audit" data-mode="order" data-package="Starter">Pilih Paket</button>
                         </div>
                         <div class="pricing-card featured">
                             <div class="card-badge">Paling Populer</div>
@@ -291,7 +291,7 @@
                                 <li>✓ Link Building</li>
                                 <li>✓ 24/7 Support</li>
                             </ul>
-                            <button class="btn btn-primary w-full">Pilih Paket</button>
+                            <button class="btn btn-primary w-full btn-trigger-audit" data-mode="order" data-package="Professional">Pilih Paket</button>
                         </div>
                         <div class="pricing-card">
                             <h3>Business</h3>
@@ -302,7 +302,7 @@
                                 <li>✓ Dedicated Manager</li>
                                 <li>✓ Priority Support</li>
                             </ul>
-                            <button class="btn btn-secondary w-full">Pilih Paket</button>
+                            <button class="btn btn-secondary w-full btn-trigger-audit" data-mode="order" data-package="Business">Pilih Paket</button>
                         </div>
                     </div>
                 </div>
@@ -385,5 +385,185 @@
             </div>
         </footer>
     </div>
+
+    <!-- Audit Modal -->
+    <div id="auditModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="closeModalBtn">&times;</button>
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Dapatkan Audit Digital Gratis</h2>
+                <p class="modal-subtitle" id="modalSubtitle">Isi form di bawah ini dan kami akan kirimkan analisis lengkap website + rekomendasi strategi dalam 24 jam.</p>
+            </div>
+            <form id="auditForm" class="modal-form">
+                <div class="form-row-double">
+                    <div class="form-group">
+                        <label for="firstName">Nama Depan</label>
+                        <input type="text" id="firstName" name="firstName" placeholder="Jane" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Nama Belakang</label>
+                        <input type="text" id="lastName" name="lastName" placeholder="Doe" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="businessEmail">Email Bisnis</label>
+                    <input type="email" id="businessEmail" name="businessEmail" placeholder="jane@company.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="websiteUrl">Website URL (atau Instagram/Tokopedia/Shopee)</label>
+                    <input type="url" id="websiteUrl" name="websiteUrl" placeholder="https://yourwebsite.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="monthlyBudget">Budget Bulanan</label>
+                    <div class="select-wrapper">
+                        <select id="monthlyBudget" name="monthlyBudget" required>
+                            <option value="" disabled selected>Pilih kisaran budget marketing</option>
+                            <option value="Di bawah 5 Juta">&lt; Rp 5 Juta / bulan</option>
+                            <option value="5 Juta - 15 Juta">Rp 5 Juta - Rp 15 Juta / bulan</option>
+                            <option value="15 Juta - 30 Juta">Rp 15 Juta - Rp 30 Juta / bulan</option>
+                            <option value="Di atas 30 Juta">&gt; Rp 30 Juta / bulan</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="businessGoals">Ceritakan tujuan bisnis kamu</label>
+                    <textarea id="businessGoals" name="businessGoals" rows="4" placeholder="Deskripsi singkat tentang bisnis dan apa yang ingin dicapai" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn-submit-audit" id="modalSubmitBtn">Dapatkan Audit Digital Gratis</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('auditModal');
+            const closeBtn = document.getElementById('closeModalBtn');
+            const triggers = document.querySelectorAll('.btn-trigger-audit');
+            const form = document.getElementById('auditForm');
+            
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
+            const modalSubmitBtn = document.getElementById('modalSubmitBtn');
+            const businessGoalsInput = document.getElementById('businessGoals');
+
+            let currentMode = 'consultation';
+            let currentPackage = '';
+
+            // Open Modal
+            triggers.forEach(trigger => {
+                trigger.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    const mode = trigger.getAttribute('data-mode') || 'consultation';
+                    const pack = trigger.getAttribute('data-package') || '';
+                    
+                    currentMode = mode;
+                    currentPackage = pack;
+
+                    if (mode === 'order') {
+                        modalTitle.textContent = `Pemesanan Paket ${pack}`;
+                        modalSubtitle.textContent = 'Lengkapi data di bawah ini untuk memulai langkah sukses bisnis Anda bersama tim NusaData.';
+                        modalSubmitBtn.textContent = 'Kirim Permintaan Pemesanan';
+                        businessGoalsInput.placeholder = `Jelaskan kebutuhan khusus Anda untuk paket ${pack}`;
+                        businessGoalsInput.value = `Halo NusaData, saya tertarik untuk memesan paket ${pack}. Berikut adalah profil bisnis kami dan informasi yang diperlukan untuk memulai proyek.`;
+                    } else {
+                        modalTitle.textContent = 'Dapatkan Audit Digital Gratis';
+                        modalSubtitle.textContent = 'Isi form di bawah ini dan kami akan kirimkan analisis lengkap website + rekomendasi strategi dalam 24 jam.';
+                        modalSubmitBtn.textContent = 'Dapatkan Audit Digital Gratis';
+                        businessGoalsInput.placeholder = 'Deskripsi singkat tentang bisnis dan apa yang ingin dicapai';
+                        businessGoalsInput.value = '';
+                    }
+
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                });
+            });
+
+            // Close Modal
+            const closeModal = () => {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            };
+
+            closeBtn.addEventListener('click', closeModal);
+
+            // Close Modal on clicking outside the content card
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Handle Escape key to close modal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    closeModal();
+                }
+            });
+
+            // Handle Form Submission
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const email = document.getElementById('businessEmail').value;
+                const website = document.getElementById('websiteUrl').value;
+                const budget = document.getElementById('monthlyBudget').value;
+                const goals = document.getElementById('businessGoals').value;
+
+                // Send to dummy email
+                const emailTo = 'dummy@nusadata.id';
+                let subject = '';
+                let body = '';
+
+                if (currentMode === 'order') {
+                    subject = `[Pemesanan] Paket ${currentPackage} - ${firstName} ${lastName}`;
+                    body = `Halo NusaData,
+
+Saya ingin melakukan pemesanan paket "${currentPackage}" untuk bisnis saya. Berikut adalah detail pesanan saya:
+
+- Nama Lengkap: ${firstName} ${lastName}
+- Email Bisnis: ${email}
+- Website URL/Toko: ${website}
+- Perkiraan Budget Bulanan: ${budget}
+- Detail Kebutuhan / Tujuan Bisnis: ${goals}
+
+Mohon segera hubungi kami kembali untuk proses invoice dan langkah selanjutnya.
+
+Terima kasih.`;
+                } else {
+                    subject = `[Konsultasi] Pengajuan Audit Digital Gratis - ${firstName} ${lastName}`;
+                    body = `Halo NusaData,
+
+Saya ingin mengajukan Audit Digital Gratis untuk bisnis saya. Berikut detail formulir saya:
+
+- Nama Lengkap: ${firstName} ${lastName}
+- Email Bisnis: ${email}
+- Website URL/Toko: ${website}
+- Budget Bulanan: ${budget}
+- Deskripsi/Tujuan Bisnis: ${goals}
+
+Terima kasih.`;
+                }
+
+                // Build mailto link
+                const mailtoUrl = `mailto:${emailTo}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                
+                // Open user's email client
+                window.location.href = mailtoUrl;
+
+                // Optional: alert the user and close modal
+                alert(`Membuka aplikasi email Anda untuk mengirim formulir ke ${emailTo}...`);
+                closeModal();
+                form.reset();
+            });
+        });
+    </script>
 </body>
 </html>
