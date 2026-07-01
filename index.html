@@ -517,8 +517,8 @@
                 const budget = document.getElementById('monthlyBudget').value;
                 const goals = document.getElementById('businessGoals').value;
 
-                // Send to dummy email
-                const emailTo = 'dummy@nusadata.id';
+                // Send to real email
+                const emailTo = 'nusadatadigitallab@gmail.com';
                 let subject = '';
                 let body = '';
 
@@ -552,16 +552,59 @@ Saya ingin mengajukan Audit Digital Gratis untuk bisnis saya. Berikut detail for
 Terima kasih.`;
                 }
 
-                // Build mailto link
-                const mailtoUrl = `mailto:${emailTo}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                
-                // Open user's email client
-                window.location.href = mailtoUrl;
+                // URL Google Apps Script Web App (untuk integrasi Google Sheets)
+                // Ganti tanda kutip kosong '' di bawah ini dengan URL Web App Anda setelah di-deploy
+                const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxDrt3Fn90a3AuNxcco6Lb1y4ws1NFjVHFNcUn2ORqo9xROF06X0Go__M-Bku0EYQGQ2w/exec';
 
-                // Optional: alert the user and close modal
-                alert(`Membuka aplikasi email Anda untuk mengirim formulir ke ${emailTo}...`);
-                closeModal();
-                form.reset();
+                if (APPS_SCRIPT_URL) {
+                    modalSubmitBtn.disabled = true;
+                    modalSubmitBtn.textContent = 'Mengirim...';
+
+                    // Gunakan URLSearchParams untuk pencocokan x-www-form-urlencoded di Apps Script
+                    const params = new URLSearchParams();
+                    params.append('firstName', firstName);
+                    params.append('lastName', lastName);
+                    params.append('email', email);
+                    params.append('website', website);
+                    params.append('budget', budget);
+                    params.append('goals', goals);
+                    params.append('type', currentMode === 'order' ? `Pemesanan Paket ${currentPackage}` : 'Audit Digital Gratis');
+                    params.append('recipient', emailTo);
+
+                    fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors', // Menghindari isu CORS saat cross-domain POST ke Google Apps Script
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: params
+                    })
+                    .then(() => {
+                        alert('Formulir berhasil terkirim ke Google Sheets & Email kami!');
+                        closeModal();
+                        form.reset();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Fallback ke mailto jika pengiriman gagal
+                        const mailtoUrl = `mailto:${emailTo}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                        window.location.href = mailtoUrl;
+                        alert('Gagal terhubung dengan server Google Sheets. Membuka aplikasi email Anda untuk mengirim secara manual...');
+                        closeModal();
+                        form.reset();
+                    })
+                    .finally(() => {
+                        modalSubmitBtn.disabled = false;
+                        modalSubmitBtn.textContent = currentMode === 'order' ? 'Kirim Permintaan Pemesanan' : 'Dapatkan Audit Digital Gratis';
+                    });
+                } else {
+                    // Fallback mailto jika URL Apps Script belum diisi
+                    const mailtoUrl = `mailto:${emailTo}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    window.location.href = mailtoUrl;
+                    alert(`Membuka aplikasi email Anda untuk mengirim formulir ke ${emailTo}...`);
+                    closeModal();
+                    form.reset();
+                }
             });
         });
     </script>
